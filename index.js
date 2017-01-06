@@ -6,6 +6,27 @@
 const file = "test.db"
 
 class storage {
+	createField(table, field, definition) {
+		let found = 0
+		this._db.each("PRAGMA table_info(" + table + ")", function(err, row) {
+			if (row.name == field) {
+				console.log("field already exists")
+				found = 1
+				return
+			}
+		})
+
+		if (found == 0) {
+			console.log("Add field")
+			this._db.run("ALTER TABLE " + table + " ADD " + field + " " + definition)
+		}
+	}
+
+	createTable() {
+		this._db.run("CREATE TABLE IF NOT EXISTS Stuff (thing TEXT)")
+		this.createField("Stuff", "thing", "varchar(20)")
+	}
+
 	constructor() {
 		this._fs = require("fs");
 
@@ -14,11 +35,13 @@ class storage {
 		let sqlite3 = require("sqlite3").verbose();
 		this._db = new sqlite3.Database(file);
 
-		this._db.serialize(function() {
-		  if(!exists) {
-		    this._db.run("CREATE TABLE Stuff (thing TEXT)")
-		  }
-		});
+		this._db.serialize(() => {});
+
+		this.createTable()
+
+		this._db.each("PRAGMA table_info(Stuff)", function(err, row) {
+			console.log(row)
+		})
 	}
 
 	closeConnection() {
