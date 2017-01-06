@@ -1,0 +1,1 @@
+This is a simple test project to look at SQLLite3 and NodeJS
