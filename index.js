@@ -21,14 +21,24 @@ class storage {
 		});
 	}
 
-	test() {
-		this._db.run("INSERT INTO Stuff values (1)")
+	closeConnection() {
+		this._db.close()
+	}
 
+	test() {
 		this._db.each("SELECT * FROM Stuff", function(err, row) {
 			console.log(row)
 		})
 	}
+
+	parameterised(value) {
+		let stmt = this._db.prepare("INSERT INTO Stuff VALUES (?)")
+		stmt.run(value)
+		stmt.finalize()
+	}
 }
 
 let s = new storage()
+s.parameterised("testing")
 s.test()
+s.closeConnection()
